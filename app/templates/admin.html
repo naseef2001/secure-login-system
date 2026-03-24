@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Secure Login System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
+</head>
+<body>
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h1>Admin Dashboard</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('auth.dashboard') }}">User Dashboard</a>
+                <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+            </div>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="stats-cards">
+            <div class="stat-card"><h3>Total Users</h3><div class="stat-number">{{ stats.total_users }}</div></div>
+            <div class="stat-card"><h3>Administrators</h3><div class="stat-number">{{ stats.admin_users }}</div></div>
+            <div class="stat-card"><h3>Active Users</h3><div class="stat-number">{{ stats.active_users }}</div></div>
+            <div class="stat-card"><h3>Pending Approval</h3><div class="stat-number">{{ stats.pending_users }}</div></div>
+            <div class="stat-card"><h3>Locked Users</h3><div class="stat-number">{{ stats.locked_users }}</div></div>
+        </div>
+        <div class="user-table">
+            <h3>User Management</h3>
+            <div class="table-responsive">
+                 <table>
+                    <thead>
+                        <tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Approved</th><th>Login Attempts</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td><span class="role-badge {{ user.role }}">{{ user.role|title }}</span></td>
+                            <td><span class="status-badge {{ 'active' if user.is_active else 'inactive' }}">{{ 'Active' if user.is_active else 'Inactive' }}</span></td>
+                            <td>{% if user.is_approved %}<span style="color: #28a745;">Approved</span>{% else %}<span style="color: #ffc107;">Pending</span>{% endif %}</td>
+                            <td>{{ user.login_attempts }}/5</td>
+                            <td class="actions">
+                                {% if user.id != current_user.id %}
+                                    {% if not user.is_approved and user.role == 'admin' %}
+                                        <form action="{{ url_for('admin.approve_user', user_id=user.id) }}" method="POST" style="display:inline;"><button type="submit" class="btn-small btn-success">Approve</button></form>
+                                        <form action="{{ url_for('admin.reject_user', user_id=user.id) }}" method="POST" style="display:inline;"><button type="submit" class="btn-small btn-danger">Reject</button></form>
+                                    {% else %}
+                                        {% if user.is_locked() %}<form action="{{ url_for('admin.reset_login_attempts', user_id=user.id) }}" method="POST" style="display:inline;"><button type="submit" class="btn-small btn-unlock">Unlock</button></form>{% endif %}
+                                        <form action="{{ url_for('admin.toggle_user_status', user_id=user.id) }}" method="POST" style="display:inline;"><button type="submit" class="btn-small btn-toggle">{{ 'Deactivate' if user.is_active else 'Activate' }}</button></form>
+                                        <form action="{{ url_for('admin.change_user_role', user_id=user.id) }}" method="POST" style="display:inline;"><select name="new_role"><option value="user">User</option><option value="admin">Admin</option></select><button type="submit" class="btn-small btn-toggle">Change</button></form>
+                                        <form action="{{ url_for('admin.delete_user', user_id=user.id) }}" method="POST" style="display:inline;"><button type="submit" class="btn-small btn-danger">Delete</button></form>
+                                    {% endif %}
+                                {% else %}<span class="current-user-badge">Current User</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

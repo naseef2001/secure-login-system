@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Secure Login System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Secure Login</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form method="POST" id="loginForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter your password">
+                </div>
+                <div class="form-group">
+                    <label>Verification Code</label>
+                    <div class="captcha-container">
+                        <span class="captcha-text">{{ captcha }}</span>
+                        <button type="button" class="captcha-refresh" onclick="refreshCaptcha()">⟳</button>
+                    </div>
+                    <input type="text" id="captcha" name="captcha" required placeholder="Enter verification code">
+                </div>
+                <button type="submit" class="btn">Sign In</button>
+            </form>
+            <p class="text-center">
+                Don't have an account? <a href="{{ url_for('auth.register') }}">Create Account</a>
+            </p>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/validation.js') }}"></script>
+</body>
+</html>

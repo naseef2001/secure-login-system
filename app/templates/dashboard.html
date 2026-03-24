@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Secure Login System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
+</head>
+<body>
+    <div class="dashboard">
+        <div class="dashboard-header">
+            <h1>Welcome, {{ user.username }}</h1>
+            <div class="nav-links">
+                {% if user.is_admin() %}
+                    <a href="{{ url_for('admin.dashboard') }}">Admin Panel</a>
+                {% endif %}
+                <a href="{{ url_for('auth.logout') }}">Sign Out</a>
+            </div>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <div class="dashboard-content">
+            <div class="info-card">
+                <h3>Account Information</h3>
+                <div class="info-row"><strong>Username:</strong> <span>{{ user.username }}</span></div>
+                <div class="info-row"><strong>Email:</strong> <span>{{ user.email }}</span></div>
+                <div class="info-row"><strong>Role:</strong> <span class="role-badge {{ user.role }}">{{ user.role|title }}</span></div>
+                <div class="info-row"><strong>Approval Status:</strong> 
+                    {% if user.role == 'admin' %}
+                        {% if user.is_approved %}<span class="status-badge active">Approved</span>{% else %}<span class="status-badge pending">Pending Approval</span>{% endif %}
+                    {% else %}<span class="status-badge active">Approved</span>{% endif %}
+                </div>
+                <div class="info-row"><strong>Account Status:</strong> <span class="status-badge {{ 'active' if user.is_active else 'inactive' }}">{{ 'Active' if user.is_active else 'Inactive' }}</span></div>
+                <div class="info-row"><strong>Account Created:</strong> <span>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</span></div>
+                <div class="info-row"><strong>Last Login:</strong> <span>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'First login' }}</span></div>
+                <div class="info-row"><strong>Failed Login Attempts:</strong> <span>{{ user.login_attempts }}/5</span></div>
+            </div>
+            <div class="info-card">
+                <h3>Security Features</h3>
+                <ul>
+                    <li>Password hashing with bcrypt</li>
+                    <li>Account lockout after 5 failed attempts</li>
+                    <li>CAPTCHA protection</li>
+                    <li>SQL injection prevention</li>
+                    <li>Role-based access control</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

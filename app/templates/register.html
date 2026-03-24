@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Secure Login System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dark-theme.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h2>Create Account</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form method="POST" id="registerForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Choose a username (3-50 characters)">
+                    <small style="color: #6c757d; font-size: 11px;">Letters, numbers, and underscore only</small>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Create a strong password">
+                    <div id="passwordStrength" class="password-strength"></div>
+                    <small style="color: #6c757d; font-size: 11px;">Minimum 8 characters, uppercase, lowercase, and number required</small>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required placeholder="Confirm your password">
+                </div>
+                <div class="form-group">
+                    <label for="role">Account Type</label>
+                    <select id="role" name="role">
+                        <option value="user">Standard User</option>
+                        <option value="admin">Administrator</option>
+                    </select>
+                    <small style="color: #6c757d; font-size: 11px;">Administrator accounts require approval</small>
+                </div>
+                <button type="submit" class="btn">Register</button>
+            </form>
+            <p class="text-center">
+                Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a>
+            </p>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='js/validation.js') }}"></script>
+</body>
+</html>
