@@ -1,7 +1,9 @@
 from datetime import datetime, timedelta
 from flask_login import UserMixin
 from app import db, login_manager
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
@@ -24,10 +26,12 @@ class User(UserMixin, db.Model):
     approver = db.relationship('User', remote_side=[id], foreign_keys=[approved_by])
     
     def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
+        """Hash password using bcrypt"""
+        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
     
     def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
+        """Verify password using bcrypt"""
+        return bcrypt.check_password_hash(self.password_hash, password)
     
     def is_locked(self):
         if self.locked_until and datetime.utcnow() < self.locked_until:
